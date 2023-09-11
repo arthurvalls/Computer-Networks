@@ -1,0 +1,253 @@
+\documentclass{homework}
+\usepackage{pgfplots}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,  % cor dos links internos
+    urlcolor=blue,   % cor dos links externos
+}
+
+
+\pgfplotsset{compat=1.17}
+\title{\textbf{Lista 2 - Redes de Computadores I}}
+\author{\textbf{Arthur Valls da Costa Silva - 120177470}}
+\customdate{Setembro, 2023}  % Add your custom date here
+
+
+\begin{document}
+
+\maketitle
+
+\begin{exercise}[R1)]
+\begin{enumerate}
+    \item \textbf{Navegação na Web (World Wide Web):}
+    \begin{itemize}
+        \item \textbf{Protocolo:} HTTP (Hypertext Transfer Protocol) - É o protocolo utilizado para acessar páginas da web.
+    \end{itemize}
+
+    \item \textbf{Email:}
+    \begin{itemize}
+        \item \textbf{Protocolo:} SMTP (Simple Mail Transfer Protocol) - Protocolo para envio de emails.
+    \end{itemize}
+    \item \textbf{Voz sobre IP (VoIP):}
+    \begin{itemize}
+        \item \textbf{Protocolo:} SIP (Session Initiation Protocol) - Protocolo de sinalização de telefonia IP usado para estabelecer, modificar e finalizar chamadas telefônicas VoIP.
+    \end{itemize}
+
+    \item \textbf{Transferência de arquivos:}
+    \begin{itemize}
+        \item \textbf{Protocolo:} FTP (File Transfer Protocol) - É um protocolo amplamente utilizado para transferir arquivos pela Internet.
+    \end{itemize}
+    \item \textbf{Acesso Remoto:}
+    \begin{itemize}
+        \item \textbf{Protocolo:} Telnet - É um protocolo de acesso remoto que permite que um usuário se conecte e interaja com um dispositivo remoto como se estivesse fisicamente presente.
+    \end{itemize}
+\end{enumerate}
+\end{exercise}
+\begin{exercise}[R4)]
+
+Não, em uma aplicação de compartilhamento de arquivos P2P, existe uma distinção clara entre esses dois lados. O "par" cliente é aquele que está recebendo os arquivos disponibilizados, enquanto o "par" servidor é aquele que está disponibilizando os arquivos na sessão de comunicação.
+    
+\end{exercise}
+\begin{exercise}[R6)]
+
+Nesse caso, a melhor escolha seria usar o UDP. 
+
+
+O UDP é um protocolo não orientado para conexão, não confiável e não possui mecanismos para garantir a entrega de pacotes na ordem correta. No entanto, essas limitações fazem com que ele consuma menos tempo em comparação com o TCP, que estabelece uma conexão confiável e implementa controles rigorosos.
+
+Dado que o requisito principal é a máxima velocidade na transação, e não há preocupação com a ordem e perda dos pacotes, o UDP é a melhor escolha.
+    
+\end{exercise}
+\begin{exercise}[R8)]
+    \begin{enumerate}
+  \item \textbf{Transferência confiável de dados:}
+  \begin{itemize}
+    \item TCP fornece transferência confiável.
+    \item UDP não oferece transferência confiável.
+  \end{itemize}
+
+  \item \textbf{Vazão:}
+  \begin{itemize}
+    \item TCP oferece controle de fluxo (não sobrecarrega o receptor) mas não oferece garantias mínimas de vazão.
+    \item UDP não oferece garantia de vazão.
+  \end{itemize}
+
+  \item \textbf{Temporização:}
+  \begin{itemize}
+    \item TCP fornece controle de congestionamento, mas não oferece temporização.
+    \item UDP não oferece mecanismos de temporização.
+  \end{itemize}
+  \item \textbf{Segurança:}
+  \begin{itemize}
+    \item TCP não fornece segurança diretamente.
+    \item UDP não inclui recursos de segurança.
+  \end{itemize}
+\end{enumerate}
+\end{exercise}
+\begin{exercise}[R9)]
+     O SSL opera na camada de aplicação. Isso significa que ele atua acima da camada de transporte.
+     
+     Se um desenvolvedor de aplicação deseja aprimorar o TCP com o SSL, ele deve incorporar o código SSL na própria aplicação. O código SSL da aplicação é responsável por criptografar os dados antes de enviá-los pelo TCP.
+     
+     Portanto, para habilitar o SSL, é necessário que tanto o servidor quanto o cliente incluam o código SSL em suas respectivas implementações. Dessa forma, a comunicação entre eles será protegida por criptografia e outros serviços de segurança oferecidos pelo SSL.
+\end{exercise}
+\begin{exercise}[R11)]
+    As aplicações que utilizam os protocolos HTTP, FTP, SMTP e POP3 exigem uma transferência confiável de dados, garantindo que todos os dados da aplicação sejam recebidos na ordem correta e sem perda de pacotes. 
+    
+    Essa necessidade de confiabilidade e integridade dos dados é fundamental para o funcionamento adequado desses protocolos, e como vimos acima, apenas o TCP oferece esses serviços.
+    
+    Devido à falta de confiabilidade e à ausência de garantia na ordem de chegada dos pacotes pelo UDP, essas aplicações optam por operar sobre o TCP em vez do UDP.
+    \end{exercise}
+\begin{exercise}[R16)]
+    \begin{enumerate}
+  \item A mensagem é inicialmente enviada do hospedeiro de Alice para o seu servidor de correio através do protocolo \textbf{HTTP}.
+
+  \item O servidor de correio de Alice, em seguida, encaminha a mensagem para o servidor de correio de Bob utilizando o protocolo \textbf{SMTP}.
+
+  \item Bob, por sua vez, transfere a mensagem do seu servidor de correio para o seu hospedeiro utilizando o protocolo \textbf{POP3}.
+\end{enumerate}
+\end{exercise}
+\begin{exercise}[R23)]
+    Uma \textbf{rede de sobreposição}, como descrita no livro base da disciplina \textit{\textbf{(Kurose, Ross)}}, é uma abstração lógica que existe em cima da infraestrutura de rede física.
+
+    Os \textbf{enlaces} (ou links) em uma rede de sobreposição não são físicos; em vez disso, são representados como conexões virtuais entre duplas pares de dispositivos (P2P).
+    
+    A rede de sobreposição não inclui roteadores, pois opera em um nível mais alto e virtual, acima da camada de roteamento da rede física.
+    
+    Por fim, as \textbf{arestas} de uma rede de sobreposição representam as conexões de comunicação, geralmente usando protocolos como o TCP, entre pontos A e B na sobreposição. 
+\end{exercise}
+\begin{exercise}[P4)]
+\subsection*{a)}
+A solicitação do documento foi feita através do URL: 
+\begin{center}
+\texttt{http://gaia.cs.umass.edu/cs453/index.html}    
+\end{center}
+
+\begin{enumerate}
+    \item Por ser uma solicitação HTTP, sabemos que o url começará com:  \texttt{http://}
+    \item Na mensagem, mais especificamente no campo \texttt{Host}, temos o nome do servidor: \texttt{gaia.cs.umass.edu}
+    \item O nome do arquivo que está sendo solicitado no contexto do método HTTP é: \texttt{/cs453/index.html}
+\end{enumerate}
+
+Combinando os items acima, obtemos o URL completo.
+\subsection*{b)}
+No ínicio da mensagem, temos \texttt{HTTP/1.1}, o que indica que o navegador está rodando HTTP na versão 1.1.
+\subsection*{c)}
+O navegador está requisitando uma conexão persistente, como indicado na área de \texttt{Connection: keep-alive}. 
+\subsection*{d)}
+Não é possível determinar o endereço IP do hospedeiro no qual o navegador está rodando apenas com as informações da mensagem HTTP. Para obtê-lo, seria necessário acessar as informações dos datagramas IP que transportaram o segmento TCP contendo a solicitação HTTP.
+\subsection*{e)}
+\texttt{Mozilla/5.0}, como especificado no campo \texttt{User-Agent}.
+
+O tipo de navegador em uma mensagem de requisição HTTP é essencial para permitir que o servidor envie diferentes versões de documentos adaptados a diferentes navegadores, assegurando assim uma experiência de usuário mais padronizada.
+\end{exercise}
+\begin{exercise}[P15)]
+O termo \textit{MTA} representa \textit{Mail Transfer Agent}. Esse processo envolve a transferência da responsabilidade pela entrega de e-mails para outros agentes, também conhecidos como MTA, antes que o e-mail seja efetivamente entregue. 
+
+Essa abordagem permite que, se por algum motivo, um MTA não puder enviar o e-mail diretamente ao destinatário final, a responsabilidade possa ser transferida para outro MTA.
+
+Na mensagem de spam fornecida, notamos que um MTA não informa a origem da mensagem, especificamente o MTA \texttt{asusus-4b96 [58.88.21.177]}. Assumindo que apenas o criador da mensagem é malicioso, podemos concluir que \texttt{asusus-4b96 [58.88.21.177]} é o hospedeiro malicioso responsável por criar essa mensagem de spam.
+
+\end{exercise}
+\begin{exercise}[P9)]
+\subsection*{a)}
+
+A questão, e o livro, nos dão os seguintes dados:
+
+\begin{itemize}
+    \item Taxa de chegada de objetos ao enlace de acesso ($\beta$): $16\ \text{requisições/s}$ 
+    \item Tempo médio de atraso da Internet: $3\ \text{segundos}$ 
+    \item Tamanho médio do objeto (L): $850.000\ \text{bits}$
+    \item Taxa de transferência do enlace (R): $15\ \text{Mbits/s} = 15.000.000\ \text{bits}$
+\end{itemize}
+
+Como vimos anteriormente no \textbf{Capítulo 1}, sabemos que o atraso de transmissão, ou o tempo necessário para enviar um objeto pelo enlace, é dado por:
+\begin{equation*}
+    \frac{L}{R}
+\end{equation*}
+Para encontrarmos o tempo médio, vamos dividir o tamanho médio do objeto ($850.000$ bits) pela taxa de transferência do enlace:
+\begin{equation*}
+\Delta = \frac{850.000\ \text{bits}}{15.000.000\ \text{bits/sec}} = 0.0567\ \text{sec}
+\end{equation*}
+
+Agora, basta aplicarmos a fórmula dada na questão:
+
+\begin{equation*}
+    \frac{\Delta}{1 - (\Delta * \beta)}
+\end{equation*}
+
+Substituindo pelos valores encontrados:
+\begin{equation*}
+    \frac{0.0567}{1 - (0.0567 * 16)} = \frac{0.0567}{1 - 0.9072} = \frac{0.0567}{0.0928} = 0.61099\ldots \approx 0.6\ \text{segundos}
+\end{equation*}
+
+
+Sabemos que o tempo médio de atraso da Internet é de $3$ segundos. Logo, o tempo médio de resposta total é:
+\begin{equation*}
+    0.6 + 3 = 3.6\ \text{segundos}
+\end{equation*}
+\end{exercise}
+\begin{exercise}[P10)]
+A questão nos fornece os seguintes dados:
+\begin{itemize}
+    \item Comprimento do enlace: 10 m
+    \item Taxa de transmissão: 150 bits/s em ambas as direções
+    \item Comprimento dos pacotes de dados: 100 mil bits
+    \item Comprimento dos pacotes de controle: 200 bits
+    \item Número de objetos baixados: 10
+    \item Tamanho de cada objeto baixado: 100 Kbits
+\end{itemize}
+\begin{center}
+\Huge{\textbf{\textit{TO;DO} A FAZER A COMPLETAR}}
+    
+\end{center}
+
+
+\end{exercise}
+\begin{exercise}[P22)]
+
+A questão nos dá os seguintes valores:
+
+\begin{itemize}
+  \item F = 15 Gbits
+  \item Taxa de upload do servidor (\(u_s\)) = 30 Mbits/s
+  \item Taxa de download de cada par (\(d_i = d_{min}\)) = 2 Mbits/s
+  \item Valores de \(N\): 10, 100, 1.000
+  \item Valores de \(u\): 300 Kbits/s, 700 Kbits/s, 2 Mbits/s
+\end{itemize}
+
+Para calcular o tempo mínimo de distribuição para a distribuição cliente-servidor, usamos a seguinte fórmula:
+\begin{equation*}
+    D_{cs} = \max \left\{ \frac{NF}{u_s}, \frac{F}{d_{\text{min}}} \right\} 
+\end{equation*}
+
+De forma similar, para a distribuição P2P, usamos a seguinte fórmula:
+\begin{equation*}
+    D_{P2P} = \max\left\{\frac{F}{u_s}, \frac{F}{d_{\text{min}}}, \frac{NF}{u_s + \sum_{i=1}^{N} u_i}\right\}
+\end{equation*}
+
+Sendo assim, basta colocarmos os dados e as fórmulas acima em um script em Python para conseguir plotar o gráfico de maneira automatizada. 
+
+Para acessar o código feito, basta clicar \href{https://colab.research.google.com/drive/1QIHDg_0NFPNvwLih_lMrAlVBzR_ET1tZ?usp=sharing}{aqui} ou acessar o link:
+\begin{center}
+    \small{\url{https://colab.research.google.com/drive/1QIHDg_0NFPNvwLih_lMrAlVBzR_ET1tZ?usp=sharing}}
+\end{center}
+
+A partir do código acima, conseguimos plotar o seguinte gráfico:
+
+\begin{figure}[htb!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{distredes.png}
+  \label{fig:distredes}
+\end{figure}
+
+O código também gera a seguinte tabela dos valores obtidos (e plotados):
+
+\begin{figure}[htb!]
+  \centering
+  \includegraphics[width=0.7\textwidth]{tableredes.png}
+  \label{fig:tableredes}
+\end{figure}
+\end{exercise}
+\end{document}
