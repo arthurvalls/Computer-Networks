@@ -1,8 +1,3 @@
-'''
-Arthur Valls da Costa Silva (120177470)
-Julia Turazzi Almeida (120188861)
-'''
-
 from socket import *
 import sys
 

@@ -5,6 +5,7 @@ Julia Turazzi Almeida (120188861)
 
 from socket import *
 import sys
+import threading
 
 HOST = "127.0.0.1"  # localhost
 PORT = 12345  # porta 
@@ -24,19 +25,10 @@ def serve_page(filename):
     except FileNotFoundError:
         return "404 Not Found"
 
+# função para lidar com uma única conexão
+def handle_connection(connectionSocket):
+    global authenticated
 
-serverSocket = socket(AF_INET, SOCK_STREAM) # cria um socket usando IPv4 e o protocolo TCP
-serverSocket.bind((HOST, PORT)) # associa o socket criado ao endereço e porta especificados
-serverSocket.listen(1) # coloca o socket em modo escuta, permitindo apenas uma conexão
-
-# printa no terminal o URL pra acessar a página HTML
-print(f"Acesse o seguinte URL no navegador: http://{HOST}:{PORT}")
-
-while True:
-    print('Ready to serve...')
-    connectionSocket, addr = serverSocket.accept()
-
-    print("Conectado com:", addr)
     try:
         message = connectionSocket.recv(2048).decode()  # recebe a mensagem e a decodifica
 
@@ -77,5 +69,23 @@ Location: /
         connectionSocket.close()
     except IOError:
         pass
+
+serverSocket = socket(AF_INET, SOCK_STREAM) # cria um socket usando IPv4 e o protocolo TCP
+serverSocket.bind((HOST, PORT)) # associa o socket criado ao endereço e porta especificados
+serverSocket.listen(1) # coloca o socket em modo escuta, permitindo apenas uma conexão
+
+# printa no terminal o URL pra acessar a página HTML
+print(f"Acesse o seguinte URL no navegador: http://{HOST}:{PORT}")
+
+while True:
+    print('Ready to serve...')
+    connectionSocket, addr = serverSocket.accept()
+
+    print("Conectado com:", addr)
+
+    # Crie uma nova thread para lidar com a conexão
+    client_thread = threading.Thread(target=handle_connection, args=(connectionSocket,))
+    client_thread.start()
+
 serverSocket.close()
 sys.exit()
