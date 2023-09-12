@@ -2,7 +2,7 @@ from socket import *
 import sys
 
 HOST = "127.0.0.1"  # localhost
-PORT = 12345  # porta aleatória
+PORT = 12345  # porta 
 
 # usuário cadastrado
 USER = "arthur"
@@ -19,9 +19,10 @@ def serve_page(filename):
     except FileNotFoundError:
         return "404 Not Found"
 
-serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.bind((HOST, PORT))
-serverSocket.listen(1)
+
+serverSocket = socket(AF_INET, SOCK_STREAM) # cria um socket usando IPv4 e o protocolo TCP
+serverSocket.bind((HOST, PORT)) # associa o socket criado ao endereço e porta especificados
+serverSocket.listen(1) # coloca o socket em modo escuta, permitindo apenas uma conexão
 
 # printa no terminal o URL pra acessar a página HTML
 print(f"Acesse o seguinte URL no navegador: http://{HOST}:{PORT}")
