@@ -76,6 +76,6 @@ Location: /
         connectionSocket.sendall(response.encode())
         connectionSocket.close()
     except IOError:
-        return "404 Not Found"
+        print("Houve um erro.")
 serverSocket.close()
 sys.exit()
