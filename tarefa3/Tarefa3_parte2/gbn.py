@@ -41,7 +41,9 @@ from enum import Enum, auto
 import random
 import sys
 import time
+
 from binascii import crc32
+
 ###############################################################################
 
 ## ************************* BASIC DATA STRUCTURES ****************************
@@ -107,129 +109,135 @@ class EntityA:
     # all seqnums must be in the range 0-15.
     def __init__(self, seqnum_limit):
         self.OUTPUT = 0
-        self.INPUT  = 1
+        self.INPUT = 1
         self.TIMER = 2
 
         # How long to wait for ack?
-        self.WAIT_TIME = 10.0
-
+        self.WAIT_TIME = 42.0   # como mencionado pelo monitor 
+        self.seqnum_limit = seqnum_limit
+        self.windowSize = 8    # como mencionado no pdf
+        
         # State
-        self.layer5_msgs = []
-        self.bit = 0
-        self.sent_pkt = None
-        self.handle_event = self.handle_event_wait_for_call
-
-        # gbn
-        self.window_size = 8
-        self.sender_base = 0
-        self.sender_next_sequence_number = 0
-        self.sent_packets = [None] * self.window_size
-        self.handle_event = self.handle_event_wait_for_call
-
+        self.layer5_msgs = [] # Lista para mensagens da camada 5
+        
+        self.layer3Pkts = [] # Lista para pacotes da camada 3
+        self.seqBase = 0 # Número de sequência base
+        self.failureCounter = 0  # Contador de falta de progresso
+        self.progressFlag = True # Flag para indicar progresso
 
     # Called from layer 5, passed the data to be sent to other side.
-    # The argument `message` is a Msg containing the data to be sent.
+    # The argument message is a Msg containing the data to be sent.
     def output(self, message):
-        self.layer5_msgs.append(message)
-        self.handle_event(self.OUTPUT)
+        # Adiciona uma mensagem à lista da camada 5 e envia pacotes
+        self.layer5_msgs.append(message) 
+        self.sendPackets()
 
     # Called from layer 3, when a packet arrives for layer 4 at EntityA.
-    # The argument `packet` is a Pkt containing the newly arrived packet.
+    # The argument packet is a Pkt containing the newly arrived packet.
     def input(self, packet):
-        self.handle_event(self.INPUT, packet)
+        if pkt_is_corrupt(packet):
+            return
 
+        for i, pkt in enumerate(self.layer3Pkts):
+            if pkt.seqnum == packet.acknum:
+                # Atualiza a base e remove pacotes da camada 3
+                self.seqBase += i + 1
+                self.layer3Pkts = self.layer3Pkts[i + 1:]
+                self.successfulAck()
+                break
+        
     # Called when A's timer goes off.
     def timer_interrupt(self):
-        self.handle_event(self.TIMER)
-        pass
+        if not self.progressFlag:
+            self.failureCounter += 1 # Se não houve progresso, aumenta o contador de falta de progresso
+        self.progressFlag = False
+        
+        for pkt in self.layer3Pkts:
+            to_layer3(self, pkt) # Envie os pacotes da camada 3
+        
+        start_timer(self, self.WAIT_TIME * (self.failureCounter+1)) # Inicia o temporizador com base no tempo de espera
 
     #####
 
-    def handle_event_wait_for_call(self, e, arg=None):
-        if e == self.OUTPUT:
-            while self.sender_next_sequence_number < self.sender_base + self.window_size:
-                if not self.layer5_msgs:
-                    return
-                m = self.layer5_msgs.pop(0)
-                p = Pkt(self.sender_next_sequence_number, 0, 0, m.data)
-                pkt_insert_checksum(p)
-                to_layer3(self, p)
-                self.sent_packets[self.sender_next_sequence_number % self.window_size] = p
-                self.sender_next_sequence_number += 1
+    def sendPackets(self):
+    # Enquanto houver mensagens da camada 5 e espaço na janela deslizante da camada 3
+        while (self.layer5_msgs
+           and len(self.layer3Pkts) < self.windowSize):
+            # Pega a próxima mensagem da camada 5
+            m = self.layer5_msgs.pop(0)
+            # Obtém o próximo número de sequência
+            s = (self.seqBase + len(self.layer3Pkts)) % self.seqnum_limit
+            # Cria um pacote com o número de sequência, valores de ACK e SEQ, e a carga de dados da mensagem
+            p = Pkt(s, 0, 0, m.data)
+            # Insere um checksum no pacote para detecção de erros
+            pkt_insert_checksum(p)
+            # Adiciona o pacote à lista de pacotes da camada 3
+            self.layer3Pkts.append(p)
+            # Envia o pacote para a camada 3
+            to_layer3(self, p)
 
-            self.handle_event = self.handle_event_wait_for_ack
+            # Se este é o primeiro pacote na janela deslizante, inicia um temporizador
+            if len(self.layer3Pkts) == 1:
+                start_timer(self, self.WAIT_TIME)
+                
 
-        elif e==self.INPUT:
-            pass
-
-        elif e==self.TIMER:
-            if TRACE>0:
-                print('EntityA: ignoring unexpected timeout.')
-
-        else:
-            self.unknown_event(e)
-
-    def handle_event_wait_for_ack(self, e, arg=None):
-        if e==self.OUTPUT:
-            pass
-
-        elif e==self.INPUT:
-            p = arg
-            if (pkt_is_corrupt(p)
-                or p.acknum != self.bit):
-                return
-            stop_timer(self)
-            #
-            self.bit = 1 - self.bit
-            self.handle_event = self.handle_event_wait_for_call
-            self.handle_event(self.OUTPUT)
-
-        elif e==self.TIMER:
-            to_layer3(self, self.sent_pkt)
+    def successfulAck(self):
+        # A flag é definida como True após uma confirmação bem-sucedida e redefine o temporizador
+        self.progressFlag = True
+        self.failureCounter = 0
+        stop_timer(self)
+       
+        if self.layer3Pkts:
             start_timer(self, self.WAIT_TIME)
+       
+        self.sendPackets()
 
-        else:
-            self.unknown_event(e)
-
-    #####
-
-    def self_unknown_event(self, e):
-        print(f'EntityA: ignoring unknown event {e}.')
-
-#####
 
 class EntityB:
     # The following method will be called once (only) before any other
     # EntityB methods are called.  You can use it to do any initialization.
     #
-    # See comment for the meaning of seqnum_limit.
+    # See comment above `EntityA.__init__` for the meaning of seqnum_limit.
     def __init__(self, seqnum_limit):
-        self.expecting_bit = 0
-        self.receiver_sequence_number = 0
-        pass
+        self.seqnum_limit = seqnum_limit 
+        self.expectingSeqnum = 0 # Número de sequência esperado
+        
+        self.acknowledged = seqnum_limit - 1 # Número de sequência reconhecido
 
     # Called from layer 3, when a packet arrives for layer 4 at EntityB.
-    # The argument `packet` is a Pkt containing the newly arrived packet.
+    # The argument packet is a Pkt containing the newly arrived packet.
     def input(self, packet):
-        if (packet.seqnum >= self.receiver_sequence_number
-            and not pkt_is_corrupt(packet)):
-            # In-order packet, deliver and acknowledge it.
-            while packet.seqnum > self.receiver_sequence_number:
-                self.receiver_sequence_number += 1
-
-            to_layer5(self, Msg(packet.payload))
-            ack = Pkt(0, self.receiver_sequence_number, 0, packet.payload)
-            pkt_insert_checksum(ack)
-            to_layer3(self, ack)
-
-        # Send an acknowledgment for any packet received.
-        ack = Pkt(0, packet.seqnum, 0, packet.payload)
-        pkt_insert_checksum(ack)
-        to_layer3(self, ack)
+       # print(f'B received: {packet}')
+       # Verifica se o número de sequência do pacote de entrada corresponde ao esperado
+       # e se o pacote está corrompido
+        if packet.seqnum != self.expectingSeqnum or pkt_is_corrupt(packet):
+            self.IsPacketCorrupt(packet)
+        else:
+            self.IsPacketValid(packet)
 
     # Called when B's timer goes off.
     def timer_interrupt(self):
         pass
+
+    #####
+    
+    def IsPacketCorrupt(self, packet):
+        # Gera um novo pacote com um número de sequência fixo e envia para a camada 3
+        p = Pkt(0, self.acknowledged, 0, packet.payload)
+        pkt_insert_checksum(p)
+        to_layer3(self, p)
+
+
+    def IsPacketValid(self, packet):
+        # Envia a mensagem para a camada 5, envia um pacote de confirmação e atualiza o estado
+        to_layer5(self, Msg(packet.payload))
+        # Ack.
+        p = Pkt(0, self.expectingSeqnum, 0, packet.payload)
+        pkt_insert_checksum(p)
+        to_layer3(self, p)
+        #
+        self.acknowledged = self.expectingSeqnum
+        self.expectingSeqnum = (self.expectingSeqnum + 1) % self.seqnum_limit
 
 #####
 
